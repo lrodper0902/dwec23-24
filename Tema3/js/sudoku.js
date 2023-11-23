@@ -1,5 +1,6 @@
 class Sudoku {
     constructor(mezclas = 30) {
+        //sudoku interno
         this.datos = [
             1, 1, 1, 1, 1, 1, 1, 1, 1,
             2, 2, 2, 2, 2, 2, 2, 2, 2,
@@ -59,7 +60,20 @@ class Sudoku {
     }
 
     cambiaFilas(a, b) {
-        // debes implementar este código
+        // creamos las filas 
+        let f1 = a*9; //índice
+        let f2 = b*9; //índice
+        let aux ='';
+
+        for (let i = 0; i < 10; i++) {
+            a = f1;
+            b = f2;
+            aux = a;
+            datos[a] = datos[b];
+            datos[b] = datos[aux];
+            f1 ++;
+            f2 ++;
+        }
     }
 
     intercambiaColumna(i = 10) {
@@ -98,7 +112,7 @@ class Sudoku {
     }
 
     cambiaColumnas(a, b) {
-        // debes implementar este código      
+        let c1 = a + 9     
     }
 
     nuevo(mezclas = 10) {
