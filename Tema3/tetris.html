@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetris en Canvas</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+      display: block;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+  <script>
+    // Obtener el canvas y el contexto
+const canvas = document.getElementById("tetrisCanvas");
+const ctx = canvas.getContext("2d");
+
+// Tamaño de cada bloque de la pieza
+const blockSize = 30;
+
+//
+const matrizJuego = new Array(20).fill(new Array(10).fill(0));
+
+
+console.dir(matrizJuego);
+
+
+const piezaI = {
+    actual: 0,
+    color: "cyan",
+    ejeX: 0,
+    ejeY: 0,
+    ancho:[4,1],
+    alto: [1,4],
+    rotaciones: [
+            [[1,1,1,1]],
+            [[1],[1],[1],[1]]
+        ]
+};
+const piezaL = {
+    actual: 0,
+    color: "orange",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [3,2,3,2],
+    alto:[2,3,2,3],
+    rotaciones: [
+            [[1, 1, 1], [1]],
+            [[1,1],[0,1],[0,1]],
+            [[0,0,1],[1,1,1]],
+            [[1],[1],[1,1]]
+        ]
+};
+const piezaJ = {
+    actual: 0,
+    color: "green",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [3,2,3,2],
+    alto: [2,3,2,3],
+    rotaciones: [
+            [[1, 1, 1], [0, 0, 1]],
+            [[0,1],[0,1],[1,1]],
+            [[1],[1,1,1]],
+            [[1,1],[1],[1]]
+        ]
+};
+const piezaO = {
+    actual: 0,
+    color: "brown",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [2],
+    alto: [2],
+    rotaciones: [
+            [[1, 1], [1, 1]]
+        ]
+};
+const piezaT = {
+    actual: 0,
+    color: "purple",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [3,2,3,2],
+    alto: [2,3,2,3],
+    rotaciones: [
+            [[1, 1, 1], [0, 1, 0]],
+            [[0,1],[1,1],[0,1]],
+            [[0,1],[1,1,1]],
+            [[1],[1,1],[1]]
+        ]
+};
+const piezaS = {
+    actual: 0,
+    color: "yellow",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [3,2],
+    alto: [2,3],
+    rotaciones: [
+            [[1, 1], [0, 1, 1]],
+            [[0,1],[1,1],[1]]
+        ]
+};
+const piezaZ = {
+    actual: 0,
+    color: "red",
+    ejeX: 0,
+    ejeY: 0,
+    ancho: [3,2],
+    alto: [2,3],
+    rotaciones: [
+            [[0, 1, 1],[1,1]],
+            [[1],[1,1],[0,1]]
+        ]
+};
+
+const pieza = (p)=>p.rotaciones[p.actual];
+const rotaPieza = (p)=>{
+  deletePiece(p);
+  p.actual=(p.actual+1)%p.rotaciones.length;
+  p.ejeX=p.ejeX<10-p.ancho[p.actual]?p.ejeX:10-p.ancho[p.actual]
+  drawPiece(p);
+}
+const derechaPieza = (p)=>{
+  deletePiece(p);
+  p.ejeX=p.ejeX<10-p.ancho[p.actual]?p.ejeX+1:10-p.ancho[p.actual];
+  drawPiece(p);
+};
+const izquierdaPieza = (p)=>{
+  deletePiece(p);
+  p.ejeX=p.ejeX>0?p.ejeX-1:0
+  console.log(p.ejeX)
+  drawPiece(p);
+};
+const abajoPieza = (p)=>{
+  if (colisionAbajo(p,matrizJuego)) return;
+  deletePiece(piezaActual);
+  piezaActual.ejeY++;
+  drawPiece(piezaActual);
+};
+
+// Definir algunas piezas
+const arrPiezas = [piezaI,piezaL,piezaJ,piezaO,piezaT,piezaS,piezaZ];
+
+let piezaActual = arrPiezas[Math.floor(Math.random()*arrPiezas.length)];
+
+document.addEventListener("keydown", function(event) {
+  console.log("tecla: " + event.key);
+  if (event.key === "ArrowRight") {
+    derechaPieza(piezaActual);
+  }
+  else if (event.key === "ArrowLeft") {
+    izquierdaPieza(piezaActual);
+  }
+  else if (event.key === "ArrowUp") {
+    rotaPieza(piezaActual);
+  }
+  else if (event.key === "ArrowDown") {
+    abajoPieza(piezaActual);
+  }
+
+});
+
+// Función para dibujar una pieza en el canvas
+function drawPiece(p) {
+  const color = p.color;
+  const offsetX = p.ejeX;
+  const offsetY = p.ejeY;
+  const piece = pieza(p);
+  piece.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        ctx.fillStyle = color;
+        ctx.fillRect((x + offsetX) * blockSize, (y + offsetY) * blockSize, blockSize, blockSize);
+        ctx.strokeStyle = "#000";
+        ctx.strokeRect((x + offsetX) * blockSize, (y + offsetY) * blockSize, blockSize, blockSize);
+      }
+    });
+  });
+}
+
+function drawPiece(p) {
+  const color = p.color;
+  const offsetX = p.ejeX;
+  const offsetY = p.ejeY;
+  const piece = pieza(p);
+  piece.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        ctx.fillStyle = color;
+        ctx.fillRect((x + offsetX) * blockSize, (y + offsetY) * blockSize, blockSize, blockSize);
+        ctx.strokeStyle = "#000";
+        ctx.strokeRect((x + offsetX) * blockSize, (y + offsetY) * blockSize, blockSize, blockSize);
+      }
+    });
+  });
+}
+
+
+function deletePiece(p) {
+  const offsetX = p.ejeX;
+  const offsetY = p.ejeY;
+  const piece = pieza(p);
+  piece.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        ctx.fillStyle = "#FFF";
+        ctx.fillRect((x + offsetX) * blockSize -1, (y + offsetY) * blockSize - 1, blockSize+2, blockSize+2);
+        //ctx.strokeStyle = "#FFF";
+        //ctx.strokeRect((x + offsetX) * blockSize, (y + offsetY) * blockSize, blockSize, blockSize);
+      }
+    });
+  });
+}
+
+function drawTablero(t) {
+  t.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value) {
+        ctx.fillStyle = "grey";
+        ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+        ctx.strokeStyle = "grey";
+        ctx.strokeRect(x * blockSize, y * blockSize, blockSize, blockSize);
+      }
+    });
+  });
+}
+
+
+
+function colisionAbajo(p, m){
+  const pi = pieza(p);
+  console.log(pi);
+  if (p.ejeY + p.alto[p.actual]>=20)
+    return true;
+  //for (let i=0; i<p.ancho[p.actual];i++)
+  //  if (m[]p.ejeX+i)
+}
+
+setInterval(()=>{
+    abajoPieza(piezaActual);
+    drawTablero(matrizJuego);
+    if (colisionAbajo(piezaActual, matrizJuego)) {
+       // fijaAbajo(piezaActual, matrizJuego);        
+        piezaActual = arrPiezas[Math.floor(Math.random()*arrPiezas.length)];
+        piezaActual.ejeY=0;
+    }
+},1000);
+drawTablero(matrizJuego);
+  </script>
+</body>
+</html>
